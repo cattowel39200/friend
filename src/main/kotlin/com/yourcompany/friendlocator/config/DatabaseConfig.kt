@@ -48,9 +48,10 @@ object DatabaseConfig {
     private fun initPostgres() {
         logger.info("Initializing PostgreSQL database...")
 
-        // Transaction Pooler - required for Railway (IPv4 compatible)
+        // Transaction Pooler - port 6543 required for Railway (IPv4)
         val host = System.getenv("DB_HOST") ?: "aws-1-ap-northeast-1.pooler.supabase.com"
         val port = System.getenv("DB_PORT") ?: "6543"
+        logger.info("Using Transaction Pooler: $host:$port")
         val database = System.getenv("DB_NAME") ?: "postgres"
         val user = System.getenv("DB_USER") ?: "postgres.ppybykiciyhvtlmqrnly"
         val password = System.getenv("DB_PASSWORD") ?: "sejonggps0520!"
