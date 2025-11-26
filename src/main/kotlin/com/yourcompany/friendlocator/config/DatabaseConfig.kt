@@ -73,8 +73,9 @@ object DatabaseConfig {
             validationTimeout = 10000  // 10 seconds for validation
         }
 
+        var dataSource: HikariDataSource? = null
         try {
-            val dataSource = HikariDataSource(config)
+            dataSource = HikariDataSource(config)
             Database.connect(dataSource)
 
             transaction {
@@ -84,7 +85,8 @@ object DatabaseConfig {
 
             logger.info("PostgreSQL database connected: $host:$port")
         } catch (e: Exception) {
-            logger.error("Failed to connect to PostgreSQL: ${e.message}", e)
+            logger.error("Failed to connect to PostgreSQL: ${e.message}")
+            dataSource?.close()  // Close failed connection
             logger.warn("Falling back to SQLite...")
             initSqlite()
         }
