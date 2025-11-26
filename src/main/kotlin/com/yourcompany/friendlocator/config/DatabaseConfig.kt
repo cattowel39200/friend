@@ -48,11 +48,11 @@ object DatabaseConfig {
     private fun initPostgres() {
         logger.info("Initializing PostgreSQL database...")
 
-        // Direct connection (not pooler) - more reliable for single connection apps
-        val host = System.getenv("DB_HOST") ?: "db.ppybykiciyhvtlmqrnly.supabase.co"
-        val port = System.getenv("DB_PORT") ?: "5432"
+        // Transaction Pooler - required for Railway (IPv4 compatible)
+        val host = System.getenv("DB_HOST") ?: "aws-1-ap-northeast-1.pooler.supabase.com"
+        val port = System.getenv("DB_PORT") ?: "6543"
         val database = System.getenv("DB_NAME") ?: "postgres"
-        val user = System.getenv("DB_USER") ?: "postgres"
+        val user = System.getenv("DB_USER") ?: "postgres.ppybykiciyhvtlmqrnly"
         val password = System.getenv("DB_PASSWORD") ?: "sejonggps0520!"
 
         logger.info("Connecting to PostgreSQL: $host:$port/$database as $user")
