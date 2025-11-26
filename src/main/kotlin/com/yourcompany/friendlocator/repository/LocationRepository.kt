@@ -16,8 +16,8 @@ object LocationRepository {
     // roomCode -> roomId 매핑
     private val roomCodeToId = ConcurrentHashMap<String, String>()
 
-    // 위치 데이터 만료 시간 (30초)
-    private const val LOCATION_EXPIRY_MS = 30_000L
+    // 위치 데이터 만료 시간 (2분)
+    private const val LOCATION_EXPIRY_MS = 120_000L
 
     /**
      * 방 참여 또는 생성
@@ -41,15 +41,21 @@ object LocationRepository {
 
     /**
      * 특정 방의 모든 친구 위치 조회 (본인 제외)
+     * 만료 시간 체크 제거 - 위치 공유 중단 시에만 삭제됨
      */
     fun getFriendsLocations(roomId: String, excludeUserId: String): List<LocationResponse> {
-        val now = System.currentTimeMillis()
         val locations = roomLocations[roomId] ?: return emptyList()
 
         return locations.values
             .filter { it.userId != excludeUserId }
-            .filter { now - it.timestamp < LOCATION_EXPIRY_MS } // 만료된 위치 제외
             .toList()
+    }
+
+    /**
+     * 사용자 위치 삭제 (위치 공유 중단 시)
+     */
+    fun removeUserLocation(roomId: String, userId: String) {
+        roomLocations[roomId]?.remove(userId)
     }
 
     /**

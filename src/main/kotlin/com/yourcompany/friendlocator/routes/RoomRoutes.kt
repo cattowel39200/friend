@@ -85,5 +85,29 @@ fun Route.roomRoutes() {
 
             call.respond(HttpStatusCode.OK, friendsLocations)
         }
+
+        /**
+         * DELETE /api/rooms/{roomId}/locations/{userId}
+         * 위치 공유 중단 (사용자 위치 삭제)
+         */
+        delete("/{roomId}/locations/{userId}") {
+            val roomId = call.parameters["roomId"] ?: return@delete call.respond(
+                HttpStatusCode.BadRequest,
+                mapOf("success" to false, "message" to "roomId가 필요합니다")
+            )
+
+            val userId = call.parameters["userId"] ?: return@delete call.respond(
+                HttpStatusCode.BadRequest,
+                mapOf("success" to false, "message" to "userId가 필요합니다")
+            )
+
+            logger.info("Location sharing stopped: roomId=$roomId, userId=$userId")
+            LocationRepository.removeUserLocation(roomId, userId)
+
+            call.respond(
+                HttpStatusCode.OK,
+                mapOf("success" to true, "message" to "위치 공유가 중단되었습니다")
+            )
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.yourcompany.friendlocator.plugins
 
+import com.yourcompany.friendlocator.routes.placeRoutes
+import com.yourcompany.friendlocator.routes.restaurantRoutes
 import com.yourcompany.friendlocator.routes.roomRoutes
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -27,6 +29,8 @@ fun Application.configureRouting() {
         // API routes
         route("/api") {
             roomRoutes()
+            placeRoutes()
+            restaurantRoutes()
         }
     }
 }
