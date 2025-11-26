@@ -59,10 +59,11 @@ object DatabaseConfig {
             driverClassName = "org.postgresql.Driver"
             username = user
             this.password = password
-            maximumPoolSize = 2  // Supabase free tier limit
+            maximumPoolSize = 1  // Supabase free tier - single connection
             minimumIdle = 1
             isAutoCommit = false
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            connectionTimeout = 30000  // 30 seconds
+            initializationFailTimeout = -1  // Don't fail fast, retry
 
             // SSL 설정 (Supabase 필수)
             addDataSourceProperty("ssl", "true")
