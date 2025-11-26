@@ -59,7 +59,8 @@ object DatabaseConfig {
             driverClassName = "org.postgresql.Driver"
             username = user
             this.password = password
-            maximumPoolSize = 10
+            maximumPoolSize = 2  // Supabase free tier limit
+            minimumIdle = 1
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
 
