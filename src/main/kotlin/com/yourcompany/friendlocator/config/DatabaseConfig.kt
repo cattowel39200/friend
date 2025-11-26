@@ -13,7 +13,7 @@ object DatabaseConfig {
     private val logger = LoggerFactory.getLogger(DatabaseConfig::class.java)
 
     fun init() {
-        val dbType = System.getenv("DB_TYPE") ?: "sqlite"
+        val dbType = System.getenv("DB_TYPE") ?: "postgres"  // Default to postgres for Railway
         logger.info("DB_TYPE environment variable: '$dbType'")
 
         when (dbType.lowercase()) {
