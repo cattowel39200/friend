@@ -13,11 +13,15 @@ object DatabaseConfig {
     private val logger = LoggerFactory.getLogger(DatabaseConfig::class.java)
 
     fun init() {
-        val dbType = System.getenv("DB_TYPE") ?: "sqlite"  // sqlite or postgres
+        val dbType = System.getenv("DB_TYPE") ?: "sqlite"
+        logger.info("DB_TYPE environment variable: '$dbType'")
 
         when (dbType.lowercase()) {
             "postgres" -> initPostgres()
-            else -> initSqlite()
+            else -> {
+                logger.info("Using SQLite (DB_TYPE is not 'postgres')")
+                initSqlite()
+            }
         }
     }
 
