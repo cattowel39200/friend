@@ -49,35 +49,42 @@ object DatabaseConfig {
         logger.info("Initializing PostgreSQL database...")
 
         val host = System.getenv("DB_HOST") ?: "aws-1-ap-northeast-1.pooler.supabase.com"
-        val port = System.getenv("DB_PORT") ?: "5432"
+        val port = System.getenv("DB_PORT") ?: "6543"  // Transaction Pooler port
         val database = System.getenv("DB_NAME") ?: "postgres"
         val user = System.getenv("DB_USER") ?: "postgres.ppybykiciyhvtlmqrnly"
         val password = System.getenv("DB_PASSWORD") ?: "sejonggps0520!"
 
+        logger.info("Connecting to PostgreSQL: $host:$port/$database as $user")
+
         val config = HikariConfig().apply {
-            jdbcUrl = "jdbc:postgresql://$host:$port/$database?prepareThreshold=0"
+            jdbcUrl = "jdbc:postgresql://$host:$port/$database?prepareThreshold=0&sslmode=require"
             driverClassName = "org.postgresql.Driver"
             username = user
             this.password = password
             maximumPoolSize = 1  // Supabase free tier - single connection
-            minimumIdle = 1
-            isAutoCommit = false
-            connectionTimeout = 30000  // 30 seconds
-            initializationFailTimeout = -1  // Don't fail fast, retry
-
-            // SSL 설정 (Supabase 필수)
-            addDataSourceProperty("ssl", "true")
-            addDataSourceProperty("sslmode", "require")
+            minimumIdle = 0  // Don't keep idle connections
+            isAutoCommit = true  // Required for Transaction Pooler
+            connectionTimeout = 60000  // 60 seconds
+            idleTimeout = 30000  // 30 seconds
+            maxLifetime = 60000  // 1 minute max lifetime
+            initializationFailTimeout = -1  // Don't fail fast
+            validationTimeout = 10000  // 10 seconds for validation
         }
 
-        val dataSource = HikariDataSource(config)
-        Database.connect(dataSource)
+        try {
+            val dataSource = HikariDataSource(config)
+            Database.connect(dataSource)
 
-        transaction {
-            SchemaUtils.create(Places)
-            logger.info("PostgreSQL tables created successfully")
+            transaction {
+                SchemaUtils.create(Places)
+                logger.info("PostgreSQL tables created successfully")
+            }
+
+            logger.info("PostgreSQL database connected: $host:$port")
+        } catch (e: Exception) {
+            logger.error("Failed to connect to PostgreSQL: ${e.message}", e)
+            logger.warn("Falling back to SQLite...")
+            initSqlite()
         }
-
-        logger.info("PostgreSQL database connected: $host")
     }
 }
